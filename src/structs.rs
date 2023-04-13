@@ -104,7 +104,6 @@ impl World {
         if list.len() == self.cities.len() {
             return (list, acc);
         }
-        println!("helper {}", acc);
         let mut ret = (Vec::new(), f32::MAX);
         for c in self.cities.iter() {
             let mut visited = false;

@@ -1,3 +1,7 @@
+
+mod structs;
+
 fn main() {
-    println!("Hello, world!");
+    let city = structs::City { x: 69.0, y: 420.0};
+    println!("{}",city);
 }

@@ -58,6 +58,17 @@ impl World {
         self.cities.append(&mut rand_cities(n, self.left, self.right, self.bottom, self.top));
         self.cities.shrink_to_fit();
     }
+    pub fn get_cities(&self) -> &Vec<City> {
+        return &self.cities;
+    }
+    pub fn sum_dist(&self) -> f32 {
+
+        let mut acc: f32 = 0.0;
+        for i in 1..self.cities.len() {
+            acc += self.cities[i-1].dist(&self.cities[i]);
+        }
+        return acc;
+    }
     pub fn salesman_greedy(&mut self) -> &Vec<City> {
         if self.cities.len() == 0 {
             return &self.cities;
@@ -84,16 +95,39 @@ impl World {
         self.cities = sol;
         return &self.cities;
     }
-    pub fn get_cities(&self) -> &Vec<City> {
+    pub fn salesman_brute(&mut self) -> &Vec<City> {
+        let sol = self.brute_helper(Vec::new(), 0.0).0;
+        self.cities = sol;
         return &self.cities;
     }
-    pub fn sum_dist(&self) -> f32 {
-
-        let mut acc: f32 = 0.0;
-        for i in 1..self.cities.len() {
-            acc += self.cities[i-1].dist(&self.cities[i]);
+    fn brute_helper(&self, list:Vec<City>, acc:f32) -> (Vec<City>, f32) {
+        if list.len() == self.cities.len() {
+            return (list, acc);
         }
-        return acc;
+        println!("helper {}", acc);
+        let mut ret = (Vec::new(), f32::MAX);
+        for c in self.cities.iter() {
+            let mut visited = false;
+            for visited_city in &list{
+                if c == visited_city{
+                    visited = true;
+                    break;
+                }
+            }
+            if !visited {
+                let mut clone = list.clone();
+                clone.push(c.clone());
+                let mut acc_copy = acc;
+                if list.len() > 0 {
+                    acc_copy += list.last().unwrap().dist(c);
+                }
+                let res = self.brute_helper(clone, acc_copy);
+                if res.1 < ret.1 {
+                    ret = res;
+                }
+            }
+        }
+        return ret;
     }
 }
 impl fmt::Display for World {

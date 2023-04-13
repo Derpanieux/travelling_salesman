@@ -118,7 +118,7 @@ impl fmt::Display for World {
 }
 fn rand_cities(n: u32, left: f32, right: f32, bottom: f32, top: f32) -> Vec<City> {
     use rand::*;
-    let mut rng = rand::thread_rng();
+    let mut rng = thread_rng();
     let mut arr = Vec::with_capacity(n as usize);
     for _i in 0..n {
         arr.push(City::new_pos(rng.gen_range(left..right), rng.gen_range(bottom..top)));

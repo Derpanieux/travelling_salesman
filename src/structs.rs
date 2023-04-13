@@ -24,7 +24,7 @@ impl City {
     }
     pub fn dist(&self, other: &City) -> f32 {
         let deltax = self.x - other.x;
-        let deltay = self.x - other.y;
+        let deltay = self.y - other.y;
         return (deltax*deltax+deltay*deltay).sqrt();
     }
 }
@@ -64,18 +64,23 @@ impl World {
         }
         //let mut cpy = self.cities.clone();
         let mut sol:Vec<City> = Vec::with_capacity(self.cities.len());
-        sol.push(self.cities.pop().unwrap());
+        sol.push(self.cities.remove(0));
         while self.cities.len() > 0 {
             let mut mindist = f32::MAX;
-            let mut index:usize = 0;
+            let mut index = usize::MAX;
+            //find closest city to last city in path
+            let last = sol.last().unwrap();
             for i in 0..self.cities.len() {
-                let dist = sol[sol.len() - 1].dist(&self.cities[i]);
-                if dist < mindist {
+                let next = &self.cities[i];
+                let distance = last.dist(next);
+                println!("{}, {}, {}", distance, last, &next);
+                if distance < mindist {
                     index = i;
-                    mindist = dist;
+                    mindist = distance;
                 }
             }
             sol.push(self.cities.remove(index));
+            println!();
         }
         sol.shrink_to_fit();
         self.cities = sol;
@@ -83,6 +88,14 @@ impl World {
     }
     pub fn get_cities(&self) -> &Vec<City> {
         return &self.cities;
+    }
+    pub fn sum_dist(&self) -> f32 {
+
+        let mut acc: f32 = 0.0;
+        for i in 1..self.cities.len() {
+            acc += self.cities[i-1].dist(&self.cities[i]);
+        }
+        return acc;
     }
 }
 impl fmt::Display for World {
@@ -104,16 +117,6 @@ impl fmt::Display for World {
         }
         return write!(f, "{}", str);
     }
-}
-pub fn sum_dist(list: &Vec<City>) -> f32 {
-    if list.len() <= 1 {
-        return 0.0;
-    }
-    let mut acc: f32 = 0.0;
-    for i in 1..list.len() {
-        acc += list[i-1].dist(&list[i]);
-    }
-    return acc;
 }
 fn rand_cities(n: u32, left: f32, right: f32, bottom: f32, top: f32) -> Vec<City> {
     use rand::*;
@@ -141,7 +144,7 @@ pub fn world_to_svg(w:&World, path:&str) {
     if city_size == 0 {
         city_size = 2;
     }
-    println!("{} {}", path_size,city_size);
+    //println!("{} {}", path_size,city_size);
     let mut canvas = Canvas::new(width, height);
     //add paths between cities
     for i in 1..w.cities.len() {

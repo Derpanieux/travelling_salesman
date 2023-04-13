@@ -16,9 +16,6 @@ impl fmt::Display for City {
     }
 }
 impl City {
-    pub const fn new() -> Self {
-        return City{x:0.0, y:0.0};
-    }
     pub const fn new_pos(x: f32, y: f32) -> Self {
         return City{x:x, y:y};
     }
@@ -126,6 +123,7 @@ impl World {
                 }
             }
         }
+        ret.0.shrink_to_fit();
         return ret;
     }
 }

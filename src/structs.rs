@@ -73,14 +73,12 @@ impl World {
             for i in 0..self.cities.len() {
                 let next = &self.cities[i];
                 let distance = last.dist(next);
-                println!("{}, {}, {}", distance, last, &next);
                 if distance < mindist {
                     index = i;
                     mindist = distance;
                 }
             }
             sol.push(self.cities.remove(index));
-            println!();
         }
         sol.shrink_to_fit();
         self.cities = sol;

@@ -5,7 +5,7 @@ mod structs;
 fn main() {
 
     let mut greedy_world = structs::World::new(0.0,1920.0,0.0,1080.0);
-    greedy_world.add_rand_cities(11);
+    greedy_world.add_rand_cities(20);
     println!("{}", greedy_world);
     println!("Running greedy algorithm...");
     let now = Instant::now();

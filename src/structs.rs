@@ -17,7 +17,7 @@ impl fmt::Display for City {
 }
 impl City {
     pub const fn new_pos(x: f32, y: f32) -> Self {
-        return City{x:x, y:y};
+        return City{x, y};
     }
     pub fn dist(&self, other: &City) -> f32 {
         let deltax = self.x - other.x;
@@ -66,11 +66,11 @@ impl World {
         }
         return acc;
     }
+    //greedy nearest neighbor algorithm starting at first city
     pub fn salesman_greedy(&mut self) -> &Vec<City> {
         if self.cities.len() == 0 {
             return &self.cities;
         }
-        //let mut cpy = self.cities.clone();
         let mut sol:Vec<City> = Vec::with_capacity(self.cities.len());
         sol.push(self.cities.remove(0));
         while self.cities.len() > 0 {
@@ -86,23 +86,27 @@ impl World {
                     mindist = distance;
                 }
             }
+            //add closest city
             sol.push(self.cities.remove(index));
         }
         sol.shrink_to_fit();
         self.cities = sol;
         return &self.cities;
     }
+    //brute force algorithm that can start at any city
     pub fn salesman_brute(&mut self) -> &Vec<City> {
         let sol = self.brute_helper(Vec::new(), 0.0).0;
         self.cities = sol;
         return &self.cities;
     }
     fn brute_helper(&self, list:Vec<City>, acc:f32) -> (Vec<City>, f32) {
+        //if list is a complete traversal return it
         if list.len() == self.cities.len() {
             return (list, acc);
         }
         let mut ret = (Vec::new(), f32::MAX);
         for c in self.cities.iter() {
+            //check if city has been visited
             let mut visited = false;
             for visited_city in &list{
                 if c == visited_city{
@@ -111,20 +115,31 @@ impl World {
                 }
             }
             if !visited {
+                //copy values to new variables
                 let mut clone = list.clone();
                 clone.push(c.clone());
                 let mut acc_copy = acc;
                 if list.len() > 0 {
                     acc_copy += list.last().unwrap().dist(c);
                 }
+                //call self on next city c
                 let res = self.brute_helper(clone, acc_copy);
+                //use results if they are the best so far
                 if res.1 < ret.1 {
                     ret = res;
                 }
             }
         }
+        //return best solution
         ret.0.shrink_to_fit();
         return ret;
+    }
+    pub fn salesman_ant(&mut self) -> &Vec<City> {
+        //pheromone map
+        let mut pheromone: Vec<Vec<f32>> = Vec::new();
+
+
+        return &self.cities;
     }
 }
 impl fmt::Display for World {

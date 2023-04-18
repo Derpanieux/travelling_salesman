@@ -134,12 +134,63 @@ impl World {
         ret.0.shrink_to_fit();
         return ret;
     }
-    pub fn salesman_ant(&mut self) -> &Vec<City> {
+    //ant algorithm makes a pheromone map, sends out randomized ant agents that use pheromone map to
+    // randomly select a path. n is the number of ant agents used. Starts at first city.
+    pub fn salesman_ant(&mut self, n:u32) -> &Vec<City> {
         //pheromone map
         let mut pheromone: Vec<Vec<f32>> = Vec::new();
 
+        //init pheromone graph with distances
+        for i in 0..self.cities.len() {
+            pheromone.push(Vec::new());
+            for j in 0..self.cities.len() {
+                pheromone[i].push(self.cities[i].dist(&self.citis[j]));
+            }
+        }
+        //send out n ants
+        for _i in 0..n {
+            let ant = ant_helper(&pheromone);
+            //update pheromones
+            let p_factor:f32 = 1/ant.1;
+            for i in 1..ant.0.len() {
+                pheromone[ant.0[i-1]][ant.0[i]] += p_factor;
+            }
+        }
+
 
         return &self.cities;
+    }
+    //send out one ant, return its dist and city traversal
+    fn ant_helper(&self, pheromone: &Vec<Vec<f32>>) -> (Vec<usize>, f32) {
+        use rand::*;
+        let mut rng = thread_rng();
+        let mut traversal = Vec::new();
+        let mut dist = 0.0;
+        traversal.push(0);
+        while traversal.len() < self.cities.len() {
+            let line = pheromone[traversal.last().unwrap()];
+            //sum pheromones out of city
+            let mut sum_p:f32 = 0.0;
+            for i in line.len() {
+                if !traversal.contains(i) {
+                    sum_p += line[i];
+                }
+            }
+            //select randomly with weights
+            let mut rval = rng.gen_range(0.0..sum_p);
+            let mut i:usize = 0;
+            loop {
+                rval -= line[i];
+                if rval > 0.0 {
+                    i += 1;
+                }else {
+                    break;
+                }
+            }
+            dist += self.cities[traversal.last().unwrap()].dist(&self.cities[i]);
+            traversal.push(i);
+        }
+        return (traversal, dist)
     }
 }
 impl fmt::Display for World {
